@@ -1,0 +1,79 @@
+version: '3'
+
+volumes:
+  staging_postgres_data: {}
+  staging_postgres_backup: {}
+  staging_media: {}
+  staging_static: {}
+  staging_docs: {}
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/staging/django/Dockerfile
+    image: polls_staging_django
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - ./.envs/.staging/.django
+      - ./.envs/.staging/.postgres
+    command: /start
+    volumes:
+      - staging_media:/data/media
+      - staging_static:/data/static
+      - staging_docs:/data/docs
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: polls_staging_postgres
+    volumes:
+      - staging_postgres_data:/var/lib/postgresql/data
+      - staging_postgres_backup:/backups
+    env_file:
+      - ./.envs/.staging/.postgres
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./compose/staging/nginx/Dockerfile
+    depends_on:
+      - django
+    env_file:
+      - ./.envs/.staging/.nginx
+    networks:
+      traefik:
+        aliases:
+          - polls
+      default:
+        aliases:
+          - nginx
+    ports:
+      - "80"
+    labels:
+      - traefik.enable=true
+      - traefik.backend=polls
+      - traefik.frontend.rule=Host:polls.dekaside.com
+      - traefik.docker.network=traefik
+      - traefik.port=80
+      - traefik.protocol=http
+    volumes:
+      - staging_media:/data/media
+      - staging_static:/data/static
+      - staging_docs:/data/docs
+
+  redis:
+    image: redis:latest
+
+networks:
+  traefik:
+    external: true
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: CHANGE_THIS

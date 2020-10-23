@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -o errexit
+set -o nounset
+
+
+# Docs
+cd /app/docs/
+make html
+cp -r /app/docs/_build/html/* /data/docs
+rm -rf /app/docs/_build
+
+# Django
+python /app/manage.py migrate --noinput
+python /app/manage.py collectstatic --noinput
+python /app/manage.py compilemessages
+/usr/local/bin/gunicorn config.wsgi --bind 0.0.0.0:5000 --chdir=/app
