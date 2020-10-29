@@ -6,21 +6,17 @@ from rest_framework import viewsets, status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from polls.core.api.permissions import IsAuthenticatedOnRetrieve, NoDeletes, IsOwnerOrReadOnly
+from polls.core.api.permissions import IsAuthenticatedOnRetrieve, NoDeletes
 from polls.users.api.v1.serializers import (
     UserSerializer,
     VerifySerializer,
     RequestRestoreCodeSerializer,
     RestorePasswordSerializer,
-    QuestionSerializer,
-    UserSerializer,
-    ChoiceSerializer
 )
 from polls.users.helpers import verify_email, restore_password
-from polls.users.models import User, Choice, Question
+from polls.users.models import User
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -143,25 +139,3 @@ class RestorePasswordViewSet(viewsets.ViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
-    serializer_class = QuestionSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-class ResultsViewSet(viewsets.ModelViewSet):
-    queryset = Choice.objects.all()
-    serializer_class = ChoiceSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-@api_view(['GET'])
-def api_root(request, format=None):
-    return Response({
-        'users': reverse('user-list', request=request, format=format),
-        'questions': reverse('question-list', request=request, format=format),
-    })

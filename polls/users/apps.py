@@ -11,7 +11,3 @@ class UsersAppConfig(AppConfig):
             import users.signals  # noqa F401
         except ImportError:
             pass
-
-class PollsConfig(AppConfig):
-    name = 'polls'
-    verbose_name = 'Polls'

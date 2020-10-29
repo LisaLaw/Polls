@@ -8,9 +8,12 @@ from django.views import defaults as default_views
 from rest_framework.documentation import include_docs_urls
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
+from polls.pollsapp import views, viewsets
+from polls.pollsapp.viewsets import QuestionViewSet, ResultsViewSet
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    path('pollsapp/', include('polls.pollsapp.urls', namespace='pollsapp')), #this makes sure the urls.py file at this dir is taken into account
 ] + static(
     settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
 )

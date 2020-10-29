@@ -61,14 +61,13 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.admin',
-    
 ]
 THIRD_PARTY_APPS = [
 ]
 LOCAL_APPS = [
     'polls.users.apps.UsersAppConfig',
     # Your stuff: custom apps go here
-    'polls.users.apps.PollsConfig',
+    'polls.pollsapp.apps.PollsappConfig',
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

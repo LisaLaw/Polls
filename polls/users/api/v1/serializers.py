@@ -4,7 +4,8 @@ from django.core import exceptions
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
-from polls.users.models import User, Question, Choice
+from polls.users.models import User
+from polls.pollsapp.models import Question, Choice
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -96,17 +97,3 @@ class RestorePasswordSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         pass
-
-class QuestionSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-
-    class Meta:
-        model = Question
-        fields = ['id', 'question_text', 'pub_date', 'owner']
-
-class ChoiceSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-
-    class Meta:
-        model = Choice
-        fields = ['id', 'choice_text', 'owner']
